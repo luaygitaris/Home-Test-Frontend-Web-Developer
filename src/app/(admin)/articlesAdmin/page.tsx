@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Loader2, Plus, Edit, Trash2, Eye, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useDebounce } from "@/hooks/use-debounce";
 
 const API_BASE_URL = "https://test-fe.mysellerpintar.com/api";
 const ARTICLES_URL = `${API_BASE_URL}/articles`;
@@ -59,6 +60,7 @@ export default function AdminArticlesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = 10;
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
   const handlePreview = (data: ArticleFormValues) => {
     setPreviewData(data);
@@ -134,23 +136,23 @@ export default function AdminArticlesPage() {
       );
     }
 
-    // Filter by search query
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
+    // Filter by debounced search query
+    if (debouncedSearchQuery) {
+      const query = debouncedSearchQuery.toLowerCase();
       result = result.filter(
         (article) =>
           article.title.toLowerCase().includes(query) ||
-          article.content.toLowerCase().includes(query)
+          article.content.toLowerCase().includes(query) ||
+          article.category.name.toLowerCase().includes(query)
       );
     }
 
     setFilteredArticles(result);
-  }, [articles, selectedCategory, searchQuery]);
+  }, [articles, selectedCategory, debouncedSearchQuery]); // Changed from searchQuery to debouncedSearchQuery
 
   useEffect(() => {
     fetchData(currentPage);
   }, [currentPage]);
-
 
   useEffect(() => {
     if (currentArticle) {
@@ -341,8 +343,8 @@ export default function AdminArticlesPage() {
 
       {/* Modal Dialog */}
       {openDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">
                 {currentArticle ? "Edit Article" : "Add New Article"}
@@ -548,8 +550,8 @@ export default function AdminArticlesPage() {
 
       {/* View Dialog */}
       {openViewDialog && currentArticle && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">View Article</h2>
               <button
