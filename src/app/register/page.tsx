@@ -55,24 +55,24 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-2 sm:p-4">
+      <Card className="w-full max-w-xs sm:max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Buat Akun Baru</CardTitle>
+          <CardTitle className="text-lg sm:text-2xl">Buat Akun Baru</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nama Lengkap</FormLabel>
+                    <FormLabel className="text-xs sm:text-sm">Nama Lengkap</FormLabel>
                     <FormControl>
-                      <Input placeholder="Nama Anda" {...field} />
+                      <Input placeholder="Nama Anda" className="text-xs sm:text-base px-3 py-2" {...field} />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs sm:text-sm" />
                   </FormItem>
                 )}
               />
@@ -81,15 +81,16 @@ export default function RegisterPage() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel className="text-xs sm:text-sm">Email</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="email@contoh.com"
                         type="email"
+                        className="text-xs sm:text-base px-3 py-2"
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs sm:text-sm" />
                   </FormItem>
                 )}
               />
@@ -98,15 +99,16 @@ export default function RegisterPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel className="text-xs sm:text-sm">Password</FormLabel>
                     <FormControl>
                       <Input
                         type="password"
                         placeholder="••••••••"
+                        className="text-xs sm:text-base px-3 py-2"
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs sm:text-sm" />
                   </FormItem>
                 )}
               />
@@ -115,10 +117,10 @@ export default function RegisterPage() {
                 name="role"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Role</FormLabel>
+                    <FormLabel className="text-xs sm:text-sm">Role</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="text-xs sm:text-base px-3 py-2" >
                           <SelectValue placeholder="Pilih role" />
                         </SelectTrigger>
                       </FormControl>
@@ -127,11 +129,11 @@ export default function RegisterPage() {
                         <SelectItem value="admin">Admin</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormMessage />
+                    <FormMessage className="text-xs sm:text-sm" />
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full text-xs sm:text-base py-2 sm:py-3" disabled={loading}>
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -143,7 +145,7 @@ export default function RegisterPage() {
               </Button>
             </form>
           </Form>
-          <div className="mt-4 text-center text-sm">
+          <div className="mt-3 sm:mt-4 text-center text-xs sm:text-sm">
             Sudah punya akun?{" "}
             <Link href="/login" className="font-medium text-primary hover:underline">
               Login disini

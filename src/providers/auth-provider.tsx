@@ -26,7 +26,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Dummy user data
 const dummyUsers = [
   {
     id: "1",
@@ -49,7 +48,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // Check auth state on initial load
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {

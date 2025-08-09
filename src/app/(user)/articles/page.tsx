@@ -1,9 +1,7 @@
-// src/app/(user)/articles/page.tsx
 "use client";
 
 import ArticlesPage from "@/components/ArticlesContent";
 import { Suspense } from "react";
-
 
 export default function ArticlesPageWrapper() {
   return (

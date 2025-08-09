@@ -38,5 +38,4 @@ export const dummyArticles = [
     slug: 'second-article',
     updatedAt: '2024-06-04T12:00:00Z'
   }
-  // ...more articles, each with slug and updatedAt
 ]

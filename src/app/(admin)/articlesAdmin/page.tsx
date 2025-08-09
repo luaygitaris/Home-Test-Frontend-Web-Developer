@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -106,15 +105,14 @@ export default function AdminArticlesPage() {
       const [articlesRes, categoriesRes] = await Promise.all([
         axios.get(ARTICLES_URL, {
           params: {
-            limit: limit, // Gunakan limit yang sudah didefinisikan (10)
-            page: page, // Gunakan halaman yang aktif
+            limit: limit,
+            page: page,
           },
         }),
         axios.get(CATEGORIES_URL),
       ]);
 
       setArticles(articlesRes.data.data);
-      // Hitung total halaman berdasarkan total data dan limit
       setTotalPages(Math.ceil(articlesRes.data.total / limit));
       setCategories(categoriesRes.data.data || categoriesRes.data);
     } catch (error) {
@@ -125,18 +123,15 @@ export default function AdminArticlesPage() {
     }
   };
 
-  // Apply filters
   useEffect(() => {
     let result = [...articles];
 
-    // Filter by category
     if (selectedCategory !== "all") {
       result = result.filter(
         (article) => article.categoryId === selectedCategory
       );
     }
 
-    // Filter by debounced search query
     if (debouncedSearchQuery) {
       const query = debouncedSearchQuery.toLowerCase();
       result = result.filter(
@@ -190,17 +185,21 @@ export default function AdminArticlesPage() {
   };
 
   return (
-    <div className="container mx-auto py-8">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <Link href="/">Home</Link>
-        <h1 className="text-2xl font-bold">Manage Articles</h1>
+    <div className="container mx-auto py-8 px-2 sm:px-4">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 md:gap-0">
+        <Link href="/" className="text-sm sm:text-base">
+          Home
+        </Link>
+        <h1 className="text-lg sm:text-2xl font-bold text-center md:text-left">
+          Manage Articles
+        </h1>
         <button
           onClick={() => {
             setCurrentArticle(null);
             setOpenDialog(true);
           }}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+          className="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 w-full md:w-auto text-sm sm:text-base"
+        >
           <Plus className="mr-2 h-4 w-4" /> Add Article
         </button>
       </div>
@@ -215,14 +214,15 @@ export default function AdminArticlesPage() {
             placeholder="Search articles..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="pl-10 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
           />
         </div>
 
         <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-auto text-sm sm:text-base"
+        >
           <option value="all">All Categories</option>
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
@@ -232,126 +232,133 @@ export default function AdminArticlesPage() {
         </select>
       </div>
 
-      {/* Table */}
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
       ) : (
-        <div>
-          <div className="border rounded-lg overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Title
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Category
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Created At
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Updated At
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredArticles.length > 0 ? (
-                  filteredArticles.map((article) => (
-                    <tr key={article.id}>
-                      <td className="px-6 py-4">{article.title}</td>
-                      <td className="px-6 py-4">{article.category.name}</td>
-                      <td className="px-6 py-4">
-                        {new Date(article.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4">
-                        {new Date(article.updatedAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 text-right space-x-2">
-                        <button
-                          onClick={() => {
-                            setCurrentArticle(article);
-                            setOpenViewDialog(true);
-                          }}
-                          className="text-green-600 hover:text-green-900">
-                          <Eye className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setCurrentArticle(article);
-                            setOpenDialog(true);
-                          }}
-                          className="text-blue-600 hover:text-blue-900">
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setCurrentArticle(article);
-                            setOpenDeleteDialog(true);
-                          }}
-                          className="text-red-600 hover:text-red-900">
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={5}
-                      className="px-6 py-4 text-center text-gray-500">
-                      No articles found
+        <div className="overflow-x-auto rounded-lg border">
+          <table className="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-2 sm:px-4 py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase">
+                  Title
+                </th>
+                <th className="px-2 sm:px-4 py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase">
+                  Category
+                </th>
+                <th className="px-2 sm:px-4 py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase">
+                  Created At
+                </th>
+                <th className="px-2 sm:px-4 py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase">
+                  Updated At
+                </th>
+                <th className="px-2 flex sm:px-4 py-3 text-right text-[10px] sm:text-xs font-medium text-gray-500 uppercase">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredArticles.length > 0 ? (
+                filteredArticles.map((article) => (
+                  <tr key={article.id}>
+                    <td className="px-2 sm:px-4 py-4 text-xs sm:text-sm sm:w-1/4">
+                      {article.title}
+                    </td>
+                    <td className="px-2 sm:px-4 py-4 text-xs sm:text-sm">
+                      {article.category.name}
+                    </td>
+                    <td className="px-2 sm:px-4 py-4 text-xs sm:text-sm">
+                      {new Date(article.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-2 sm:px-4 py-4 text-xs sm:text-sm">
+                      {new Date(article.updatedAt).toLocaleDateString()}
+                    </td>
+                    <td className="flex justify-end items-end px-2 sm:px-4 sm:w-fit py-4 text-right space-x-2 text-xs sm:text-sm">
+                      <button
+                        onClick={() => {
+                          setCurrentArticle(article);
+                          setOpenViewDialog(true);
+                        }}
+                        className="text-green-600 hover:text-green-900"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setCurrentArticle(article);
+                          setOpenDialog(true);
+                        }}
+                        className="text-blue-600 hover:text-blue-900"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setCurrentArticle(article);
+                          setOpenDeleteDialog(true);
+                        }}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
                     </td>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pagination */}
-          <div className="flex justify-between items-center mt-4">
-            <div className="text-sm text-gray-500">
-              Showing {filteredArticles.length} of {articles.length} articles
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-                className="px-3 py-1 border rounded disabled:opacity-50">
-                Previous
-              </button>
-              <span className="px-3 py-1">
-                Page {currentPage} of {totalPages}
-              </span>
-              <button
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                }
-                disabled={currentPage === totalPages}
-                className="px-3 py-1 border rounded disabled:opacity-50">
-                Next
-              </button>
-            </div>
-          </div>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan={5}
+                    className="px-6 py-4 text-center text-gray-500 text-xs sm:text-sm"
+                  >
+                    No articles found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       )}
 
-      {/* Modal Dialog */}
+      {/* Pagination */}
+      <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-2 text-xs sm:text-sm">
+        <div className="text-gray-500">
+          Showing {filteredArticles.length} of {articles.length} articles
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-1 border rounded disabled:opacity-50"
+          >
+            Previous
+          </button>
+          <span className="px-3 py-1">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 border rounded disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+
       {openDialog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto text-xs sm:text-base">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">
+              <h2 className="text-base sm:text-xl font-semibold">
                 {currentArticle ? "Edit Article" : "Add New Article"}
               </h2>
               <button
                 onClick={() => setOpenDialog(false)}
-                className="text-gray-500 hover:text-gray-700">
+                className="text-gray-500 hover:text-gray-700"
+              >
                 ✕
               </button>
             </div>
@@ -359,11 +366,13 @@ export default function AdminArticlesPage() {
             {!showPreview ? (
               <form
                 onSubmit={form.handleSubmit(handlePreview)}
-                className="space-y-4">
+                className="space-y-4"
+              >
                 <div>
                   <label
                     htmlFor="title"
-                    className="block text-sm font-medium mb-1">
+                    className="block text-sm font-medium mb-1"
+                  >
                     Title
                   </label>
                   <input
@@ -382,7 +391,8 @@ export default function AdminArticlesPage() {
                 <div>
                   <label
                     htmlFor="content"
-                    className="block text-sm font-medium mb-1">
+                    className="block text-sm font-medium mb-1"
+                  >
                     Content
                   </label>
                   <textarea
@@ -402,13 +412,15 @@ export default function AdminArticlesPage() {
                 <div>
                   <label
                     htmlFor="categoryId"
-                    className="block text-sm font-medium mb-1">
+                    className="block text-sm font-medium mb-1"
+                  >
                     Category
                   </label>
                   <select
                     id="categoryId"
                     {...form.register("categoryId")}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
                     <option value="">Select a category</option>
                     {categories.map((category) => (
                       <option key={category.id} value={category.id}>
@@ -426,7 +438,8 @@ export default function AdminArticlesPage() {
                 <div>
                   <label
                     htmlFor="imageUrl"
-                    className="block text-sm font-medium mb-1">
+                    className="block text-sm font-medium mb-1"
+                  >
                     Image URL (optional)
                   </label>
                   <input
@@ -446,19 +459,22 @@ export default function AdminArticlesPage() {
                   <button
                     type="button"
                     onClick={() => setOpenDialog(false)}
-                    className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                    className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                  >
                     Cancel
                   </button>
                   <button
                     type="button"
                     onClick={form.handleSubmit(handlePreview)}
-                    className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700">
+                    className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                  >
                     Preview
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-400">
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-400"
+                  >
                     {isSubmitting && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin inline" />
                     )}
@@ -468,7 +484,6 @@ export default function AdminArticlesPage() {
               </form>
             ) : (
               <div className="space-y-4">
-                {/* Preview Content */}
                 <div className="border rounded-lg p-4">
                   <h3 className="text-xl font-bold mb-2">
                     {previewData?.title}
@@ -500,13 +515,15 @@ export default function AdminArticlesPage() {
                 <div className="flex justify-end space-x-2 pt-4">
                   <button
                     onClick={handleEditFromPreview}
-                    className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                    className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                  >
                     Edit
                   </button>
                   <button
                     onClick={handleSubmitFromPreview}
                     disabled={isSubmitting}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-400">
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-400"
+                  >
                     {isSubmitting && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin inline" />
                     )}
@@ -519,25 +536,23 @@ export default function AdminArticlesPage() {
         </div>
       )}
 
-      {/* Delete Confirmation Dialog */}
       {openDeleteDialog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-semibold mb-2">Are you sure?</h2>
-            <p className="text-gray-600 mb-6">
-              This action cannot be undone. This will permanently delete the
-              article.
-            </p>
+          <div className="bg-white rounded-lg p-6 w-full max-w-md text-xs sm:text-base">
+            <h2 className="text-base sm:text-xl font-semibold mb-2">Are you sure?</h2>
+            <p className="text-gray-600 mb-6">This action cannot be undone. This will permanently delete the article.</p>
             <div className="flex justify-end space-x-3">
               <button
                 onClick={() => setOpenDeleteDialog(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+              >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-red-400">
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-red-400"
+              >
                 {isDeleting && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin inline" />
                 )}
@@ -548,15 +563,15 @@ export default function AdminArticlesPage() {
         </div>
       )}
 
-      {/* View Dialog */}
       {openViewDialog && currentArticle && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto text-xs sm:text-base">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">View Article</h2>
+              <h2 className="text-base sm:text-xl font-semibold">View Article</h2>
               <button
                 onClick={() => setOpenViewDialog(false)}
-                className="text-gray-500 hover:text-gray-700">
+                className="text-gray-500 hover:text-gray-700"
+              >
                 ✕
               </button>
             </div>
@@ -598,7 +613,8 @@ export default function AdminArticlesPage() {
               <div className="flex justify-end pt-4">
                 <button
                   onClick={() => setOpenViewDialog(false)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
                   Close
                 </button>
               </div>
